@@ -8,6 +8,8 @@ import org.lsh.teamthreeproject.entity.Reply;
 import org.lsh.teamthreeproject.entity.User;
 import org.lsh.teamthreeproject.repository.ReplyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -76,6 +78,16 @@ public class ReplyServiceImpl implements ReplyService {
         replyRepository.save(reply);
     }
 
+    @Override
+    public List<ReplyDTO> getRepliesByBoardId(Long boardId, int page, int size) {
+        // pageRequest 객체 생성, 페이징 정보와 정렬 방식 설정
+        PageRequest pageRequest = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdDate"));
+        // boardId에 해당하는 댓글 페이징 방식으로 데이터베이스에서 조회
+        return replyRepository.findByBoardBoardId(boardId, pageRequest)
+                .stream()
+                .map(this::convertEntityToDTO)
+                .toList();
+    }
 
 
     private Board convertBoardDTOToEntity(BoardDTO boardDTO) {

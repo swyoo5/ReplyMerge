@@ -109,11 +109,27 @@
             });
         }
 
+        let currentPage = 0;
+        const initialPageSize = 10;
+        const additionalPageSize = 5;
+        let isLoading = false;
+        let hasMoreReplies = true;
+        function loadReplies(initial = false) {
+            if (isLoading || !hasMoreReplies) return;
 
-        function loadReplies() {
             const boardId = $("input[name='boardId']").val();
-            $.get("/board/" + boardId, function(data) {
-                $('#replyList').empty();
+            isLoading = true;
+
+            const pageSize = initial ? initialPageSize : additionalPageSize;
+            $.get(`/board/${boardId}/replies`, {page : currentPage, size : pageSize}, function(data) {
+                if (initial) {
+                    $('#replyList').empty();
+                }
+
+                if (data.length < pageSize) {
+                    hasMoreReplies = false;
+                }
+
                 data.forEach(function(reply) {
                     const replyHtml = `
                     <div class="card mb-3">
@@ -125,11 +141,20 @@
                     </div>`;
                     $('#replyList').append(replyHtml);
                 });
+                isLoading = false;
+                currentPage++;
             });
         }
 
         $(document).ready(function() {
-            loadReplies();
+            loadReplies(true);
+
+            // 스크롤 이벤트
+            $(window).scroll(function() {
+                if ($(window).scrollTop() + $(window).height() >= $(document).height() - 50) {
+                    loadReplies();
+                }
+            });
         });
 
         function copyLink() {
@@ -176,7 +201,5 @@
         }
 
     </script>
-
-
 </div>
 </html>

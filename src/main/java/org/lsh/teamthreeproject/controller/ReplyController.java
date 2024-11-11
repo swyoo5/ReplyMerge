@@ -62,4 +62,13 @@ public class ReplyController {
         ReplyDTO createdReply = replyService.createReply(board, user, content);
         return ResponseEntity.ok(createdReply);
     }
+
+    @GetMapping("/board/{boardId}/replies")
+    @ResponseBody // json 형식으로 응답 반환
+    public List<ReplyDTO> getReplies(@PathVariable Long boardId,
+                                     @RequestParam int page, // 페이지 번호, 한 페이지에 보여줄 댓글 수
+                                     @RequestParam int size) {
+        // boardId에 해당하는 댓글을 page, size에 맞춰 가져옴
+        return replyService.getRepliesByBoardId(boardId, page, size);
+    }
 }
